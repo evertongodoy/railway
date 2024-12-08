@@ -5,7 +5,7 @@ FROM eclipse-temurin:21-jre
 WORKDIR /app
 
 # Copiar o JAR para o contêiner
-COPY target/railway-0.0.1-SNAPSHOT.jar app.jar
+COPY target/railway.jar app.jar
 
 # Expor a porta
 EXPOSE 8080
