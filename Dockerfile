@@ -1,10 +1,10 @@
 # Stage 1: Build the application
 FROM maven:3.9.4-eclipse-temurin-21 AS build
 
-# Configurar diretório de trabalho
+# Set working directory
 WORKDIR /app
 
-# Copy pom.xml and dependencies
+# Copy only necessary files first
 COPY pom.xml ./
 RUN mvn dependency:go-offline -B
 
@@ -14,14 +14,17 @@ COPY src ./src
 # Build the application
 RUN mvn clean install -DskipTests
 
-# Use a imagem base de Java 21
+# Stage 2: Run the application
 FROM eclipse-temurin:21-jre
 
-# Copiar o JAR para o contêiner
-COPY target/railway-0.0.1-SNAPSHOT.jar app.jar
+# Set working directory
+WORKDIR /app
 
-# Expor a porta
+# Copy the built JAR file from the build stage
+COPY --from=build /app/target/railway-0.0.1-SNAPSHOT.jar app.jar
+
+# Expose the application port
 EXPOSE 8080
 
-# Comando para executar o aplicativo
-ENTRYPOINT ["java", "-XX:MaxRAMPercentage=75", "-Dserver.port=8080", "-jar", "app.jar"]
+# Run the application
+ENTRYPOINT ["java", "-jar", "app.jar"]
